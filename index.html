@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Recipe Search</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <header class="top-section">
+        <div class="top-left">
+            <!-- <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS92oKib0S4-hSnM4AqUGyg13uGA5ROQAgP17QUu3KM&s"> -->
+            <h1><a href="index.html"> SpoonFULL</a></h1>
+        </div>
+        <h2>Find some recipes with ingredients in your fridge!</h2>
+    </header>
+
+    <div class="bottom">
+        <form id="recipeSearchForm">
+            <!-- <label for="ingredients" type="recipeSearchForm">Enter ingredients (comma-separated):</label> -->
+            <input type="text" id="ingredients" name="ingredients" required>
+            <button type="submit">Search Recipes</button>
+        </form>
+
+  <div id="recipeResults"></div>
+    </div>
+  <script>
+    document.getElementById('recipeSearchForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const ingredientsInput = document.getElementById('ingredients').value;
+      // Perform input validation here if needed
+
+      searchRecipes(ingredientsInput);
+    });
+
+    function searchRecipes(ingredients) {
+      const apiKey = 'e72d7e9717bb4352b40785d838165aa0';
+      const apiUrl = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&apiKey=${apiKey}`;
+
+      fetch(apiUrl)
+        .then(response => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error('Error fetching recipes');
+          }
+        })
+        .then(data => {
+          displayRecipes(data);
+        })
+        .catch(error => {
+          displayError(error.message);
+        });
+    }
+
+    function displayRecipes(recipes) {
+      const resultsContainer = document.getElementById('recipeResults');
+      resultsContainer.innerHTML = ''; // Clear previous results
+      recipes.forEach(recipe => {
+        const recipeElement = document.createElement('div');
+        recipeElement.textContent = "Title of Recipe: " + recipe.title;
+        //recipeElement.textContent = recipe.ingredients;
+        resultsContainer.appendChild(recipeElement);
+        const constId = recipe.id 
+        searchLink(constId)
+      });
+    }
+
+    function searchLink(recipeId){
+      const apiKey = 'e72d7e9717bb4352b40785d838165aa0';
+      const apiUrl = `https://api.spoonacular.com/recipes/${recipeId}/information?includeNutrition=false&apiKey=${apiKey}`;
+
+      fetch(apiUrl)
+        .then(response => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error('Error fetching link');
+          }
+        })
+        .then(data => {
+          displayLink(data);
+        })
+        .catch(error => {
+          displayError(error.message);
+        });
+    }
+    
+    function displayLink(link) {
+      const resultsContainer = document.getElementById('recipeResults');
+      const recipeElement = document.createElement('div');
+      recipeElement.textContent = "Recipe Link: " + link.sourceUrl;
+      //recipeElement.textContent = recipe.ingredients;
+      resultsContainer.appendChild(recipeElement);
+    }
+    
+    function displayError(errorMessage) {
+      const resultsContainer = document.getElementById('recipeResults');
+      resultsContainer.innerHTML = `<p>Error: ${errorMessage}</p>`;
+    }
+  </script>
+</body>
+</html>
